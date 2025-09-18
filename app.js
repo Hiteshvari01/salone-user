@@ -5,7 +5,7 @@ const ejsLayouts = require('express-ejs-layouts');
 const path = require('path');
 const nodemailer = require('nodemailer');
 require('dotenv').config();  
-
+const flash = require("connect-flash");
 const app = express();
 
 const transporter = nodemailer.createTransport({
@@ -53,7 +53,14 @@ app.use(session({
     resave: false,
     saveUninitialized: false
 }));
+app.use(flash());
 
+app.use((req, res, next) => {
+  res.locals.success = req.flash("success");
+  res.locals.error = req.flash("error");
+  res.locals.currUser = req.user;
+  next();
+});
 // MongoDB connection
 mongoose.connect(process.env.MONGO_URI)
     .then(() => console.log('MongoDB connected successfully'))
@@ -88,7 +95,8 @@ app.get('/service', wrapAsync(async (req, res) => {
 }));
 
 app.get('/contact', wrapAsync(async (req, res) => {
-    res.render('salone/contact');
+    const success = req.flash("success"); // ✅ Flash message get karna
+    res.render('salone/contact', { success: success[0] }); // Pass first message
 }));
 
 app.post("/save-contact", wrapAsync(async (req, res) => {
@@ -104,20 +112,20 @@ app.post("/save-contact", wrapAsync(async (req, res) => {
         from: process.env.EMAIL_USER,
         to: email,
         subject: 'Your Request Has Been Submitted',
-        html: `<div>...</div>` // shortened for brevity
+        html: `<div>Thank you, ${name}, for contacting us. We will get back to you soon!</div>`
     };
 
     const adminMailOptions = {
         from: process.env.EMAIL_USER,
         to: adminEmails.join(','),
         subject: 'New Contact Form Submission',
-        html: `<div>...</div>` // shortened for brevity
+        html: `<div>New message from ${name} (${email}):<br>${message}</div>`
     };
 
     await transporter.sendMail(userMailOptions);
     await transporter.sendMail(adminMailOptions);
 
-    res.redirect('/contact');
+    res.status(200).json({ message: 'Message sent successfully!' }); // ✅ JSON response for AJAX
 }));
 
 app.get('/gallery', wrapAsync(async (req, res) => {
