@@ -41,8 +41,8 @@
 
         <div class="col-md-6">
             <div class="h-100 bg-dark p-5">
-                <% if (servicesData && servicesData.length > 0) { %>
-                <% servicesData.forEach((service, index) => { %>
+                <% if (services && services.length > 0) { %>
+                <% services.forEach((service, index) => { %>
                     <div class="price-item mb-3 wow fadeIn" data-wow-delay="0.<%= index + 1 %>s">
                         <img class="img-fluid flex-shrink-0" src="<%= service.image.url %>" alt="<%= service.name %>">
                         <div class="text-end px-4">
