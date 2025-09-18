@@ -60,7 +60,7 @@ mongoose.connect(process.env.MONGO_URI)
     .catch(err => console.error('MongoDB connection error:', err));
 
 // Routes
-app.get('/home', wrapAsync(async (req, res) => {
+app.get('/', wrapAsync(async (req, res) => {
     const adminData = await Admin.findOne();
     const services = await Services.find();
     const bookings = await Booking.find();
